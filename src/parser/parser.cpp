@@ -46,6 +46,7 @@
 #include "ImportParser.h"
 #include "DirectiveParser.h"
 #include "TopParser.h"
+#include "UsingParser.h"
 #include <iostream>
 #include "Symbols.h"
 
@@ -113,6 +114,7 @@ void Parser::init(CompileContext *cc){
   this->registerStatementRule(new SBlockParser());
   this->registerStatementRule(new MethodCallStmtParser());
   this->registerStatementRule(new EmptySemiColonParser());
+  this->registerStatementRule(new UsingParser());
 
   this->registerTypeRule(new PrimitiveTypeParser());
   this->registerTypeRule(new PointerTypeParser());
@@ -161,9 +163,10 @@ int skipwscomment(std::string *w, int pos){
     c = w->at(pos+1);
     if(c == '/'){
       // line comments
-      while(w->at(pos) != '\n' && pos < len) pos++;
+      while(pos < len && w->at(pos) != '\n') pos++;
       if(pos == len) return -1;
       pos = skipws(w, pos);
+      if(pos == -1) return -1;
       c = w->at(pos);
     }
 
@@ -184,6 +187,7 @@ int skipwscomment(std::string *w, int pos){
         if(pos == len) return -1;
       }
       pos = skipws(w, pos);
+      if(pos == -1) return -1;
       c = w->at(pos);
     }
   }
